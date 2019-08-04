@@ -158,11 +158,6 @@ double imagedistance::CalcL2Distance(const Histogram& a, const Histogram& b) { r
 
 double imagedistance::CalcSmoothedL2Distance(const Histogram& a, const Histogram& b)
 {
-    return CalcL2Distance(a, b) + CalcL2Distance(b, a);
-}
-
-double imagedistance::CalcSymmetricKlDivergenceDistance(const Histogram& a, const Histogram& b)
-{
     const int num_bins = a.size();
 
     assert(num_bins == b.size());
@@ -189,6 +184,11 @@ double imagedistance::CalcSymmetricKlDivergenceDistance(const Histogram& a, cons
     }
 
     return (a_smoothed - b_smoothed).norm();
+}
+
+double imagedistance::CalcSymmetricKlDivergenceDistance(const Histogram& a, const Histogram& b)
+{
+    return internal::CalcKlDivergence(a, b) + internal::CalcKlDivergence(b, a);
 }
 
 double imagedistance::CalcEntropyDistance(const Histogram& a, const Histogram& b)

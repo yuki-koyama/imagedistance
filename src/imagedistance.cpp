@@ -44,6 +44,45 @@ imagedistance::ImageDistanceObject::ImageDistanceObject(
     const std::function<Eigen::Vector3d(const Eigen::Vector3d&)>& rgb_to_hsl_converter,
     const int                                                     num_bins)
 {
+    const int w = r_channel.cols();
+    const int h = r_channel.rows();
+
+    assert(w == g_channel.cols() && h == g_channel.rows());
+    assert(w == b_channel.cols() && h == b_channel.rows());
+
+    // RGB
+    {
+        m_rgb_histograms[0] = internal::CalcHistogram(num_bins, r_channel);
+        m_rgb_histograms[1] = internal::CalcHistogram(num_bins, g_channel);
+        m_rgb_histograms[2] = internal::CalcHistogram(num_bins, b_channel);
+    }
+
+    // HSL
+    {
+        Eigen::MatrixXd h_channel;
+        Eigen::MatrixXd s_channel;
+        Eigen::MatrixXd l_channel;
+        for (int x = 0; x < w; ++x)
+        {
+            for (int y = 0; y < h; ++y)
+            {
+                const Eigen::Vector3d hsl =
+                    rgb_to_hsl_converter(Eigen::Vector3d(r_channel(y, x), g_channel(y, x), b_channel(y, x)));
+
+                h_channel(y, x) = hsl(0);
+                s_channel(y, x) = hsl(1);
+                l_channel(y, x) = hsl(2);
+            }
+        }
+        m_hsl_histograms[0] = internal::CalcHistogram(num_bins, h_channel);
+        m_hsl_histograms[1] = internal::CalcHistogram(num_bins, s_channel);
+        m_hsl_histograms[2] = internal::CalcHistogram(num_bins, l_channel);
+    }
+
+    // Intensity
+    // TODO
+
+    // Edge
     // TODO
 }
 

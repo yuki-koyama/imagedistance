@@ -59,9 +59,9 @@ imagedistance::ImageDistanceObject::ImageDistanceObject(
 
     // HSL
     {
-        Eigen::MatrixXd h_channel;
-        Eigen::MatrixXd s_channel;
-        Eigen::MatrixXd l_channel;
+        Eigen::MatrixXd h_channel(h, w);
+        Eigen::MatrixXd s_channel(h, w);
+        Eigen::MatrixXd l_channel(h, w);
         for (int x = 0; x < w; ++x)
         {
             for (int y = 0; y < h; ++y)
@@ -80,7 +80,17 @@ imagedistance::ImageDistanceObject::ImageDistanceObject(
     }
 
     // Intensity
-    // TODO
+    {
+        Eigen::MatrixXd i_channel(h, w);
+        for (int x = 0; x < w; ++x)
+        {
+            for (int y = 0; y < h; ++y)
+            {
+                i_channel(y, x) = (r_channel(y, x) + g_channel(y, x) + b_channel(y, x)) / 3.0;
+            }
+        }
+        m_intensity_histogram = internal::CalcHistogram(num_bins, i_channel);
+    }
 
     // Edge
     // TODO

@@ -1,12 +1,14 @@
+#include <cmath>
 #include <imagedistance.hpp>
 
 namespace imagedistance
 {
     namespace internal
     {
-        Histogram CalcHistogram(int num_bins, const Eigen::MatrixXd& channel);
-
+        Histogram       CalcHistogram(int num_bins, const Eigen::MatrixXd& channel);
         Eigen::MatrixXd ApplySobelFilter(const Eigen::MatrixXd& channel, const bool is_x_direction);
+        double          CalcKlDivergence(const Histogram& histogram_a, const Histogram& histogram_b);
+        double          CalcEntropy(const Histogram& histogram);
     } // namespace internal
 } // namespace imagedistance
 
@@ -73,6 +75,34 @@ Eigen::MatrixXd imagedistance::internal::ApplySobelFilter(const Eigen::MatrixXd&
     return result;
 }
 
+double imagedistance::internal::CalcKlDivergence(const Histogram& histogram_a, const Histogram& histogram_b)
+{
+    const int num_bins = histogram_a.size();
+
+    assert(num_bins == histogram_b.size());
+
+    double sum = 0.0;
+    for (int i = 0; i < num_bins; ++i)
+    {
+        sum += histogram_a(i) * (std::log(std::max(histogram_a(i), 1e-32)) - std::log(std::max(histogram_b(i), 1e-32)));
+    }
+
+    return sum;
+}
+
+double imagedistance::internal::CalcEntropy(const Histogram& histogram)
+{
+    const int num_bins = histogram.size();
+
+    double sum = 0.0;
+    for (int i = 0; i < num_bins; ++i)
+    {
+        sum += -histogram(i) * std::log(std::max(histogram(i), 1e-32));
+    }
+
+    return sum;
+}
+
 imagedistance::ImageDistanceObject::ImageDistanceObject(
     const Eigen::MatrixXd&                                        r_channel,
     const Eigen::MatrixXd&                                        g_channel,
@@ -124,22 +154,44 @@ imagedistance::ImageDistanceObject::ImageDistanceObject(
     m_edge_histograms[1] = internal::CalcHistogram(num_bins, edge_y_channel);
 }
 
-double imagedistance::CalcL2Distance(const Histogram& a, const Histogram& b)
-{
-    // TODO
-}
+double imagedistance::CalcL2Distance(const Histogram& a, const Histogram& b) { return (a - b).norm(); }
 
 double imagedistance::CalcSmoothedL2Distance(const Histogram& a, const Histogram& b)
 {
-    // TODO
+    return CalcL2Distance(a, b) + CalcL2Distance(b, a);
 }
 
 double imagedistance::CalcSymmetricKlDivergenceDistance(const Histogram& a, const Histogram& b)
 {
-    // TODO
+    const int num_bins = a.size();
+
+    assert(num_bins == b.size());
+
+    const auto smooth_histogram = [num_bins](const Eigen::VectorXd& v) {
+        Eigen::VectorXd result(num_bins);
+        result(0) = (v(0) + v(1)) / 2.0;
+        for (unsigned elem = 1; elem < num_bins - 1; ++elem)
+        {
+            result(elem) = (v(elem - 1) + v(elem) + v(elem + 1)) / 3.0;
+        }
+        result(num_bins - 1) = (v(num_bins - 1) + v(num_bins - 2)) / 2.0;
+
+        return result;
+    };
+
+    Eigen::VectorXd a_smoothed = a;
+    Eigen::VectorXd b_smoothed = b;
+
+    for (int i = 0; i < 5; ++i)
+    {
+        a_smoothed = smooth_histogram(a_smoothed);
+        b_smoothed = smooth_histogram(b_smoothed);
+    }
+
+    return (a_smoothed - b_smoothed).norm();
 }
 
 double imagedistance::CalcEntropyDistance(const Histogram& a, const Histogram& b)
 {
-    // TODO
+    return std::abs(internal::CalcEntropy(a) - internal::CalcEntropy(b));
 }

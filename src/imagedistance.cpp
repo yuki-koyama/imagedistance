@@ -103,7 +103,7 @@ double imagedistance::internal::CalcEntropy(const Histogram& histogram)
     return sum;
 }
 
-imagedistance::ImageDistanceObject::ImageDistanceObject(
+imagedistance::HistogramManager::HistogramManager(
     const Eigen::MatrixXd&                                        r_channel,
     const Eigen::MatrixXd&                                        g_channel,
     const Eigen::MatrixXd&                                        b_channel,

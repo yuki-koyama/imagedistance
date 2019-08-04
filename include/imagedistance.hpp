@@ -9,14 +9,14 @@ namespace imagedistance
 {
     using Histogram = Eigen::VectorXd;
 
-    class ImageDistanceObject
+    class HistogramManager
     {
     public:
-        ImageDistanceObject(const Eigen::MatrixXd&                                        r_channel,
-                            const Eigen::MatrixXd&                                        g_channel,
-                            const Eigen::MatrixXd&                                        b_channel,
-                            const std::function<Eigen::Vector3d(const Eigen::Vector3d&)>& rgb_to_hsl_converter,
-                            const int                                                     num_bins = 30);
+        HistogramManager(const Eigen::MatrixXd&                                        r_channel,
+                         const Eigen::MatrixXd&                                        g_channel,
+                         const Eigen::MatrixXd&                                        b_channel,
+                         const std::function<Eigen::Vector3d(const Eigen::Vector3d&)>& rgb_to_hsl_converter,
+                         const int                                                     num_bins = 30);
 
         std::array<Histogram, 3> m_rgb_histograms;
         std::array<Histogram, 3> m_hsl_histograms;

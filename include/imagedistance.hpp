@@ -18,7 +18,6 @@ namespace imagedistance
                             const std::function<Eigen::Vector3d(const Eigen::Vector3d&)>& rgb_to_hsl_converter,
                             const int                                                     num_bins = 30);
 
-    private:
         std::array<Histogram, 3> m_rgb_histograms;
         std::array<Histogram, 3> m_hsl_histograms;
         Histogram                m_intensity_histogram;

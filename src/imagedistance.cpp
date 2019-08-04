@@ -80,17 +80,9 @@ imagedistance::ImageDistanceObject::ImageDistanceObject(
     }
 
     // Intensity
-    {
-        Eigen::MatrixXd i_channel(h, w);
-        for (int x = 0; x < w; ++x)
-        {
-            for (int y = 0; y < h; ++y)
-            {
-                i_channel(y, x) = (r_channel(y, x) + g_channel(y, x) + b_channel(y, x)) / 3.0;
-            }
-        }
-        m_intensity_histogram = internal::CalcHistogram(num_bins, i_channel);
-    }
+    const Eigen::MatrixXd i_channel = (r_channel + g_channel + b_channel) / 3.0;
+
+    m_intensity_histogram = internal::CalcHistogram(num_bins, i_channel);
 
     // Edge
     // TODO

@@ -38,10 +38,12 @@ imagedistance::Histogram imagedistance::internal::CalcHistogram(const int       
     return histogram / static_cast<double>(w * h);
 }
 
-imagedistance::ImageDistanceObject::ImageDistanceObject(const Eigen::MatrixXd& r_channel,
-                                                        const Eigen::MatrixXd& g_channel,
-                                                        const Eigen::MatrixXd& b_channel,
-                                                        const int              num_bins)
+imagedistance::ImageDistanceObject::ImageDistanceObject(
+    const Eigen::MatrixXd&                                        r_channel,
+    const Eigen::MatrixXd&                                        g_channel,
+    const Eigen::MatrixXd&                                        b_channel,
+    const std::function<Eigen::Vector3d(const Eigen::Vector3d&)>& rgb_to_hsl_converter,
+    const int                                                     num_bins)
 {
     // TODO
 }

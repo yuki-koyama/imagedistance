@@ -1,8 +1,9 @@
 #ifndef IMAGEDISTANCE_HPP
 #define IMAGEDISTANCE_HPP
 
-#include <array>
 #include <Eigen/Core>
+#include <array>
+#include <functional>
 
 namespace imagedistance
 {
@@ -11,10 +12,11 @@ namespace imagedistance
     class ImageDistanceObject
     {
     public:
-        ImageDistanceObject(const Eigen::MatrixXd& r_channel,
-                            const Eigen::MatrixXd& g_channel,
-                            const Eigen::MatrixXd& b_channel,
-                            const int              num_bins = 30);
+        ImageDistanceObject(const Eigen::MatrixXd&                                        r_channel,
+                            const Eigen::MatrixXd&                                        g_channel,
+                            const Eigen::MatrixXd&                                        b_channel,
+                            const std::function<Eigen::Vector3d(const Eigen::Vector3d&)>& rgb_to_hsl_converter,
+                            const int                                                     num_bins = 30);
 
     private:
         std::array<Histogram, 3> m_rgb_histograms;

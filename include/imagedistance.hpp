@@ -25,10 +25,10 @@ namespace imagedistance
         std::array<Histogram, 2> m_edge_histograms;
     };
 
-    double CalcL2Distance                   (const Histogram& a, const Histogram& b);
-    double CalcSmoothedL2Distance           (const Histogram& a, const Histogram& b);
+    double CalcL2Distance(const Histogram& a, const Histogram& b);
+    double CalcSmoothedL2Distance(const Histogram& a, const Histogram& b);
     double CalcSymmetricKlDivergenceDistance(const Histogram& a, const Histogram& b);
-    double CalcEntropyDistance              (const Histogram& a, const Histogram& b);
-}
+    double CalcEntropyDistance(const Histogram& a, const Histogram& b);
+} // namespace imagedistance
 
 #endif /* IMAGEDISTANCE_HPP */

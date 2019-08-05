@@ -22,7 +22,13 @@ namespace imagedistance
         std::array<Histogram, 3> m_hsl_histograms;
         Histogram                m_intensity_histogram;
         std::array<Histogram, 2> m_edge_histograms;
+
+        double m_size;
+        double m_aspect;
     };
+
+    // This function returns a 38-dimensional vector, calculated based on Kapoor et al.'s paper [2014]
+    Eigen::VectorXd CalcDistances(const HistogramManager& a, const HistogramManager& b);
 
     double CalcL2Distance(const Histogram& a, const Histogram& b);
     double CalcSmoothedL2Distance(const Histogram& a, const Histogram& b);

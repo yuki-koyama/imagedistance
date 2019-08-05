@@ -1,5 +1,7 @@
 #include <cmath>
+#include <functional>
 #include <imagedistance.hpp>
+#include <vector>
 
 namespace imagedistance
 {
@@ -152,6 +154,50 @@ imagedistance::HistogramManager::HistogramManager(
 
     m_edge_histograms[0] = internal::CalcHistogram(num_bins, edge_x_channel);
     m_edge_histograms[1] = internal::CalcHistogram(num_bins, edge_y_channel);
+
+    // Misc.
+    m_size   = static_cast<double>(w * h);
+    m_aspect = static_cast<double>(h) / static_cast<double>(w);
+}
+
+Eigen::VectorXd imagedistance::CalcDistances(const HistogramManager& a, const HistogramManager& b)
+{
+    Eigen::VectorXd d(38);
+    int             current_index = 0;
+
+    const std::vector<std::function<double(const imagedistance::Histogram&, const imagedistance::Histogram&)>> metrics =
+        {
+            imagedistance::CalcL2Distance,
+            imagedistance::CalcSmoothedL2Distance,
+            imagedistance::CalcSymmetricKlDivergenceDistance,
+            imagedistance::CalcEntropyDistance,
+        };
+
+    // Histogram-based distances
+    for (const auto& metric : metrics)
+    {
+        for (unsigned k = 0; k < 3; ++k)
+        {
+            d(current_index++) = metric(a.m_rgb_histograms[k], b.m_rgb_histograms[k]);
+        }
+        for (unsigned k = 0; k < 3; ++k)
+        {
+            d(current_index++) = metric(a.m_hsl_histograms[k], b.m_hsl_histograms[k]);
+        }
+        d(current_index++) = metric(a.m_intensity_histogram, b.m_intensity_histogram);
+        for (unsigned k = 0; k < 2; ++k)
+        {
+            d(current_index++) = metric(a.m_edge_histograms[k], b.m_edge_histograms[k]);
+        }
+    }
+
+    // Other distances
+    d(current_index++) = std::abs(a.m_aspect - b.m_aspect);
+    d(current_index++) = std::abs(a.m_size - b.m_size);
+
+    assert(current_index == 38);
+
+    return d;
 }
 
 double imagedistance::CalcL2Distance(const Histogram& a, const Histogram& b) { return (a - b).norm(); }
